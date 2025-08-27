@@ -88,7 +88,7 @@ const logout = async(req,res) => {
 
 const loadDashboard = async(req,res) => {
     try {
-        const users = await User.find({_id:{ $nin :[req.session.user._id]}});
+        const users = await User.find();
         return res.json({
             success:true,
             user:req.session.user,
