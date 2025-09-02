@@ -140,6 +140,26 @@ const updateChat = async(req,res) => {
     }
 }
 
+// Example Express route
+const getChats = async (req, res) => {
+    try {
+        const { sender_id, receiver_id } = req.body;
+
+        const chats = await Chat.find({
+            $or: [
+                { sender_id, receiver_id },
+                { sender_id: receiver_id, receiver_id: sender_id }
+            ]
+        }).sort({ createdAt: 1 }); // oldest → newest
+
+        res.status(200).send({ success: true, chats });
+    } catch (error) {
+        res.status(400).send({ success: false, message: error.message });
+    }
+};
+
+
+
 module.exports = {
     register,
     registerLoad,
@@ -150,4 +170,5 @@ module.exports = {
     saveChat,
     deleteChat,
     updateChat,
+    getChats
 }
