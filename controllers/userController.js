@@ -142,20 +142,37 @@ const updateChat = async(req,res) => {
 
 // Example Express route
 const getChats = async (req, res) => {
+    // try {
+    //     const { sender_id, receiver_id } = req.body;
+
+    //     const chats = await Chat.find({
+    //         $or: [
+    //             { sender_id, receiver_id },
+    //             { sender_id: receiver_id, receiver_id: sender_id }
+    //         ]
+    //     }).sort({ createdAt: 1 }); // oldest → newest
+
+    //     res.status(200).send({ success: true, chats });
+    // } catch (error) {
+    //     res.status(400).send({ success: false, message: error.message });
+    // }
     try {
-        const { sender_id, receiver_id } = req.body;
+    const { sender_id, receiver_id, message } = req.body;
 
-        const chats = await Chat.find({
-            $or: [
-                { sender_id, receiver_id },
-                { sender_id: receiver_id, receiver_id: sender_id }
-            ]
-        }).sort({ createdAt: 1 }); // oldest → newest
+    const chat = new Chat({
+      sender_id,
+      receiver_id,
+      message,
+    });
+    await chat.save();
 
-        res.status(200).send({ success: true, chats });
-    } catch (error) {
-        res.status(400).send({ success: false, message: error.message });
-    }
+    // ✅ emit to sockets in user-namespace
+    io.of("/user-namespace").emit("loadNewChat", chat);
+
+    res.status(200).json({ success: true, chat });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 };
 
 
