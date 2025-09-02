@@ -142,34 +142,20 @@ const updateChat = async(req,res) => {
 
 // Example Express route
 const getChats = async (req, res) => {
-    // try {
-    //     const { sender_id, receiver_id } = req.body;
+    try {
+        const { sender_id, receiver_id } = req.body;
 
-    //     const chats = await Chat.find({
-    //         $or: [
-    //             { sender_id, receiver_id },
-    //             { sender_id: receiver_id, receiver_id: sender_id }
-    //         ]
-    //     }).sort({ createdAt: 1 }); // oldest → newest
+        const chats = await Chat.find({
+            $or: [
+                { sender_id, receiver_id },
+                { sender_id: receiver_id, receiver_id: sender_id }
+            ]
+        }).sort({ createdAt: 1 }); // oldest → newest
 
-    //     res.status(200).send({ success: true, chats });
-    // } catch (error) {
-    //     res.status(400).send({ success: false, message: error.message });
-    // }
-     try {
-    const { sender_id, receiver_id, message } = req.body;
-
-    const chat = new Chat({ sender_id, receiver_id, message });
-    await chat.save();
-
-    // ✅ Emit to sockets here instead of socket.on("newChat")
-    userNameSpace.to(receiver_id).emit('loadNewChat', chat);
-    userNameSpace.to(sender_id).emit('loadNewChat', chat);
-
-    res.status(200).json({ success: true, chat });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+        res.status(200).send({ success: true, chats });
+    } catch (error) {
+        res.status(400).send({ success: false, message: error.message });
+    }
 };
 
 
