@@ -156,18 +156,15 @@ const getChats = async (req, res) => {
     // } catch (error) {
     //     res.status(400).send({ success: false, message: error.message });
     // }
-    try {
+     try {
     const { sender_id, receiver_id, message } = req.body;
 
-    const chat = new Chat({
-      sender_id,
-      receiver_id,
-      message,
-    });
+    const chat = new Chat({ sender_id, receiver_id, message });
     await chat.save();
 
-    // ✅ emit to sockets in user-namespace
-    io.of("/user-namespace").emit("loadNewChat", chat);
+    // ✅ Emit to sockets here instead of socket.on("newChat")
+    userNameSpace.to(receiver_id).emit('loadNewChat', chat);
+    userNameSpace.to(sender_id).emit('loadNewChat', chat);
 
     res.status(200).json({ success: true, chat });
   } catch (err) {
