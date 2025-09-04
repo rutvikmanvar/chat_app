@@ -93,21 +93,45 @@ userNameSpace.on('connection', async function (socket) {
     });
 
     // Chatting
+    // socket.on('newChat', async function (data) {
+    //     // 1. Save message
+    //     const chat = new Chat({
+    //         sender_id: data.sender_id,
+    //         receiver_id: data.receiver_id,
+    //         message: data.message,
+    //     });
+    //     await chat.save();
+
+    //     // 2. Emit to receiver's room
+    //     userNameSpace.to(data.receiver_id).emit('loadNewChat', data);
+
+    //     // 3. Emit back to sender (ack)
+    //     socket.emit('loadNewChat', data);
+    // });
+
     socket.on('newChat', async function (data) {
+    try {
         // 1. Save message
         const chat = new Chat({
             sender_id: data.sender_id,
             receiver_id: data.receiver_id,
             message: data.message,
         });
-        await chat.save();
 
-        // 2. Emit to receiver's room
-        userNameSpace.to(data.receiver_id).emit('loadNewChat', data);
+        const savedChat = await chat.save();
 
-        // 3. Emit back to sender (ack)
-        socket.emit('loadNewChat', data);
-    });
+        // 2. Emit to receiver
+        userNameSpace.to(data.receiver_id).emit('loadNewChat', savedChat);
+
+        // 3. Emit back to sender
+        socket.emit('loadNewChat', savedChat);
+
+    } catch (error) {
+        console.error("Error saving chat:", error);
+        socket.emit('error', { message: "Chat not saved" });
+    }
+});
+
 
     // Load old chat
     socket.on('existsChat', async function (data) {
