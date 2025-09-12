@@ -149,6 +149,22 @@ userNameSpace.on('connection', async function (socket) {
     socket.on('chatDeleted', function (id) {
         socket.broadcast.emit('chatMessageDeleted', id);
     });
+
+    //new group chat add 
+    socket.on('newGroupChat',function(data){
+        socket.broadcast.emit('loadNewGroupChat',data);
+    });
+
+    //group chat delete
+    socket.on('groupChatDeleted',function(id){
+        socket.broadcast.emit('groupChatMessageDeleted',id);
+    })
+
+    //group chat update
+    socket.on('groupChatUpdated',function(data){
+        socket.broadcast.emit('groupChatMessageUpdated',data);
+    })
+
 });
 
 
